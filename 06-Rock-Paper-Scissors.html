@@ -31,7 +31,8 @@
             background: #fff;
             border-radius: 5px;
             box-sizing: border-box;
-            position: relative; /* Allows absolute positioning if needed */
+            position: relative;
+            /* Allows absolute positioning if needed */
         }
 
         /* 2. GAME BUTTONS (Primary Actions) */
@@ -61,7 +62,7 @@
                 background-color: #000;
                 color: #fff;
                 transform: translateY(-5px);
-                box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+                box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.2);
             }
         }
 
@@ -74,20 +75,25 @@
         .reset-btn {
             background: none;
             border: none;
-            border-bottom: 1px solid transparent; /* invisible border for hover */
-            color: #777; /* Lighter color to show it's less important */
+            border-bottom: 1px solid transparent;
+            /* invisible border for hover */
+            color: #777;
+            /* Lighter color to show it's less important */
             font-family: inherit;
             font-size: 12px;
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 30px; /* Push it down */
+            margin-top: 30px;
+            /* Push it down */
             letter-spacing: 1px;
             transition: color 0.3s;
         }
 
         .reset-btn:hover {
-            color: #000; /* Darken on hover */
-            border-bottom: 1px solid #000; /* Subtle underline */
+            color: #000;
+            /* Darken on hover */
+            border-bottom: 1px solid #000;
+            /* Subtle underline */
             font-weight: bold;
         }
 
@@ -127,18 +133,22 @@
         <p>Select your weapon</p>
 
         <button class="reset-btn" onclick="
-            score.Win = 0; score.Lose = 0; score.Tie = 0;
+    // 1. Reset the values in the current variable
+            score.Win = 0;
+            score.Lose = 0;
+            score.Tie = 0;
+
+    // 2. Clear the storage
+            localStorage.removeItem('score');
+
             alert('Score has been reset!');
         ">Reset Score</button>
     </div>
 
     <script>
         // JavaScript code here
-        const score = {
-            Win: 0,
-            Lose: 0,
-            Tie: 0
-        }
+        let score = JSON.parse(localStorage.getItem('score')) || { Win: 0, Lose: 0, Tie: 0 };
+
         function playGame(playerMove) {
             const computerMove = pickComputerMove();
             let result = '';
@@ -168,6 +178,8 @@
                 score.Tie++;
             }
 
+            localStorage.setItem('score', JSON.stringify(score));
+
             alert(`You: ${playerMove}\nComp: ${computerMove}\nResult: ${result}\nScore: Wins: ${score.Win}, Losses: ${score.Lose}, Ties: ${score.Tie}`);
         }
         function pickComputerMove() {
@@ -180,4 +192,5 @@
         }
     </script>
 </body>
+
 </html>
