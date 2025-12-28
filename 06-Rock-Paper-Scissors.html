@@ -7,31 +7,35 @@
     <style>
         /* 1. RESET & LAYOUT */
         body {
-            font-family: 'Courier New', Courier, monospace; /* Monospaced font for raw/code feel */
+            font-family: 'Courier New', Courier, monospace;
             background-color: #ffffff;
             color: #000000;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh; /* changed height to min-height for scrolling safety */
             margin: 0;
+            padding: 20px; /* Prevents edges touching on small phones */
+            box-sizing: border-box;
         }
 
         /* 2. MAIN CONTAINER */
         .game-container {
-            border: 4px solid #000000; /* Thick, brutal border */
+            border: 4px solid #000000;
             padding: 50px;
             text-align: center;
             max-width: 400px;
             width: 100%;
             background: #fff;
+            box-sizing: border-box; /* Keeps padding inside width */
         }
 
         /* 3. TYPOGRAPHY */
         h1 {
             font-size: 1.5rem;
             text-transform: uppercase;
-            letter-spacing: 4px; /* Wide spacing */
+            letter-spacing: 4px;
+            margin-top: 0;
             margin-bottom: 40px;
             font-weight: bold;
             border-bottom: 2px solid #000;
@@ -52,7 +56,7 @@
             color: #000;
             border: 2px solid #000;
             padding: 15px 0;
-            width: 100px; /* Fixed width */
+            width: 100px;
             font-family: inherit;
             font-weight: bold;
             font-size: 14px;
@@ -61,16 +65,19 @@
             transition: all 0.2s ease;
         }
 
-        /* HOVER EFFECT: Invert Colors */
-        button:hover {
-            background-color: #000;
-            color: #fff;
-            transform: translateY(-5px); /* Slight lift */
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.2); /* Subtle shadow hint */
+        /* HOVER: Desktop Only */
+        @media (hover: hover) {
+            button:hover {
+                background-color: #000;
+                color: #fff;
+                transform: translateY(-5px);
+                box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+            }
         }
 
-        /* ACTIVE EFFECT: Press */
         button:active {
+            background-color: #000;
+            color: #fff;
             transform: translateY(0);
             box-shadow: none;
         }
@@ -78,7 +85,31 @@
         p {
             margin-top: 30px;
             font-size: 0.8rem;
-            color: #555; /* Dark grey for subtle text */
+            color: #555;
+            margin-bottom: 0;
+        }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 500px) {
+            .game-container {
+                padding: 30px 20px; /* Less padding on small screens */
+            }
+
+            .choices {
+                flex-direction: column; /* Stack buttons vertically */
+                gap: 15px;
+            }
+
+            button {
+                width: 100%; /* Make buttons full width bars */
+                padding: 20px 0; /* Taller touch targets */
+                font-size: 16px; /* Larger text for reading */
+            }
+
+            h1 {
+                font-size: 1.2rem; /* Slightly smaller title */
+                margin-bottom: 30px;
+            }
         }
     </style>
 </head>
