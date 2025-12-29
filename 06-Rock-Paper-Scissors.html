@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,31 +14,29 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* changed height to min-height for scrolling safety */
             margin: 0;
             padding: 20px;
-            /* Prevents edges touching on small phones */
             box-sizing: border-box;
         }
 
         .game-container {
             border: 4px solid #000000;
-            padding: 50px;
+            padding: 40px;
             text-align: center;
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
             background: #fff;
             border-radius: 5px;
-            box-sizing: border-box;
-            position: relative;
-            /* Allows absolute positioning if needed */
         }
 
-        /* 2. GAME BUTTONS (Primary Actions) */
+        h1 { margin-top: 0; }
+
+        /* 2. BUTTONS */
         .choices {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
+            margin-bottom: 30px;
         }
 
         .game-btn {
@@ -47,7 +44,7 @@
             color: #000;
             border: 2px solid #000;
             padding: 15px 0;
-            width: 100px;
+            width: 90px;
             font-family: inherit;
             font-weight: bold;
             font-size: 14px;
@@ -61,60 +58,81 @@
             .game-btn:hover {
                 background-color: #000;
                 color: #fff;
-                transform: translateY(-5px);
-                box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.2);
+                transform: translateY(-3px);
+                box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
             }
         }
-
+        
         .game-btn:active {
             transform: translateY(0);
             box-shadow: none;
         }
 
-        /* 3. RESET BUTTON (Secondary Action) */
+        /* 3. RESULT DISPLAY AREA */
+        .result-display {
+            margin-top: 20px;
+            border-top: 2px dashed #ccc;
+            padding-top: 20px;
+        }
+
+        .js-result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            min-height: 30px;
+        }
+
+        .js-moves {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #555;
+            min-height: 20px;
+        }
+
+        .js-score {
+            display: flex;
+            justify-content: space-between;
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+
+        /* 4. RESET BUTTON */
         .reset-btn {
             background: none;
             border: none;
             border-bottom: 1px solid transparent;
-            /* invisible border for hover */
             color: #777;
-            /* Lighter color to show it's less important */
             font-family: inherit;
             font-size: 12px;
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 30px;
-            /* Push it down */
+            margin-top: 25px;
             letter-spacing: 1px;
             transition: color 0.3s;
         }
 
         .reset-btn:hover {
             color: #000;
-            /* Darken on hover */
             border-bottom: 1px solid #000;
-            /* Subtle underline */
-            font-weight: bold;
         }
 
-        p {
-            margin-top: 30px;
-            font-size: 0.8rem;
-            color: #555;
-        }
-
-        /* --- MOBILE RESPONSIVENESS --- */
+        /* --- MOBILE ADJUSTMENTS (Updated) --- */
         @media (max-width: 500px) {
-            .choices {
-                flex-direction: column;
-                gap: 15px;
+            .choices { 
+                /* Change direction to stack items */
+                flex-direction: column; 
+                gap: 10px; 
             }
-
-            .game-btn {
-                width: 100%;
-                padding: 20px 0;
-                font-size: 16px;
-            }
+            
+            .game-btn { 
+                /* Force full width */
+                width: 100%; 
+                font-size: 16px; 
+                padding: 20px 0; 
+            } 
         }
     </style>
 </head>
@@ -130,67 +148,69 @@
             <button class="game-btn" onclick="playGame('Scissors');">Scissors</button>
         </div>
 
-        <p>Select your weapon</p>
+        <div class="result-display">
+            <div class="js-result"></div>
+            <div class="js-moves"></div>
+            <div class="js-score"></div>
+        </div>
 
-        <button class="reset-btn" onclick="
-    // 1. Reset the values in the current variable
-            score.Win = 0;
-            score.Lose = 0;
-            score.Tie = 0;
-
-    // 2. Clear the storage
-            localStorage.removeItem('score');
-
-            alert('Score has been reset!');
-        ">Reset Score</button>
+        <button class="reset-btn" onclick="resetScore()">Reset Score</button>
     </div>
 
     <script>
-        // JavaScript code here
         let score = JSON.parse(localStorage.getItem('score')) || { Win: 0, Lose: 0, Tie: 0 };
+
+        updateScoreElement();
 
         function playGame(playerMove) {
             const computerMove = pickComputerMove();
             let result = '';
-            if (playerMove === 'Scissors') {
-                if (computerMove === 'Rock') { result = 'Lose'; }
-                else if (computerMove === 'Paper') { result = 'Win'; }
-                else if (computerMove === 'Scissors') { result = 'Tie'; }
-            }
 
-            else if (playerMove === 'Paper') {
-                if (computerMove === 'Rock') { result = 'Win'; }
-                else if (computerMove === 'Paper') { result = 'Tie'; }
-                else if (computerMove === 'Scissors') { result = 'Lose'; }
-            }
-
-            else if (playerMove === 'Rock') {
-                if (computerMove === 'Rock') { result = 'Tie'; }
-                else if (computerMove === 'Paper') { result = 'Lose'; }
-                else if (computerMove === 'Scissors') { result = 'Win'; }
-            }
-
-            if (result == "Win") {
-                score.Win++;
-            } else if (result == "Lose") {
-                score.Lose++;
+            if (playerMove === computerMove) {
+                result = 'Tie';
+            } else if (
+                (playerMove === 'Rock' && computerMove === 'Scissors') ||
+                (playerMove === 'Paper' && computerMove === 'Rock') ||
+                (playerMove === 'Scissors' && computerMove === 'Paper')
+            ) {
+                result = 'Win';
             } else {
-                score.Tie++;
+                result = 'Lose';
             }
 
+            score[result]++;
             localStorage.setItem('score', JSON.stringify(score));
 
-            alert(`You: ${playerMove}\nComp: ${computerMove}\nResult: ${result}\nScore: Wins: ${score.Win}, Losses: ${score.Lose}, Ties: ${score.Tie}`);
+            let resultText = (result === 'Tie') ? "It's a Tie." : `You ${result}.`;
+            document.querySelector('.js-result').innerHTML = resultText;
+
+            document.querySelector('.js-moves').innerHTML = 
+                `You <strong>${playerMove}</strong> - Comp <strong>${computerMove}</strong>`;
+
+            updateScoreElement();
         }
+
+        function updateScoreElement() {
+            document.querySelector('.js-score').innerHTML = 
+                `<span>Wins: ${score.Win}</span>
+                 <span>Losses: ${score.Lose}</span>
+                 <span>Ties: ${score.Tie}</span>`;
+        }
+
         function pickComputerMove() {
             const randomNumber = Math.random();
-            let computerMove = '';
-            if (randomNumber >= 0 && randomNumber < 1 / 3) { computerMove = 'Rock'; }
-            else if (randomNumber >= 1 / 3 && randomNumber < 2 / 3) { computerMove = 'Paper'; }
-            else if (randomNumber >= 2 / 3 && randomNumber < 1) { computerMove = 'Scissors'; }
-            return computerMove;
+            if (randomNumber < 1 / 3) return 'Rock';
+            if (randomNumber < 2 / 3) return 'Paper';
+            return 'Scissors';
+        }
+
+        function resetScore() {
+            score = { Win: 0, Lose: 0, Tie: 0 };
+            localStorage.removeItem('score');
+            document.querySelector('.js-result').innerHTML = '';
+            document.querySelector('.js-moves').innerHTML = '';
+            updateScoreElement();
         }
     </script>
 </body>
-
 </html>
