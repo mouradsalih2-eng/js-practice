@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rock Paper Scissors</title>
     <style>
-        /* 1. RESET & LAYOUT */
+        /* --- BASE STYLES --- */
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: #ffffff;
@@ -31,7 +31,7 @@
 
         h1 { margin-top: 0; }
 
-        /* 2. BUTTONS */
+        /* --- BUTTONS --- */
         .choices {
             display: flex;
             justify-content: center;
@@ -63,12 +63,9 @@
             }
         }
         
-        .game-btn:active {
-            transform: translateY(0);
-            box-shadow: none;
-        }
+        .game-btn:active { transform: translateY(0); box-shadow: none; }
 
-        /* 3. RESULT DISPLAY AREA */
+        /* --- RESULTS & SCORE --- */
         .result-display {
             margin-top: 20px;
             border-top: 2px dashed #ccc;
@@ -99,12 +96,13 @@
             border: 1px solid #ddd;
         }
 
-        /* 4. ACTION BUTTONS (Reset & Auto Play) */
+        /* --- ACTION BUTTONS --- */
         .action-buttons {
             margin-top: 25px;
             display: flex;
             justify-content: center;
             gap: 20px;
+            flex-wrap: wrap; 
         }
 
         .secondary-btn {
@@ -120,23 +118,57 @@
             transition: color 0.3s;
         }
 
-        .secondary-btn:hover {
-            color: #000;
-            border-bottom: 1px solid #000;
+        .secondary-btn:hover { color: #000; border-bottom: 1px solid #000; }
+
+        /* --- CONFIRMATION BOX (UPDATED) --- */
+        .confirmation-box {
+            margin-top: 15px;
+            background-color: #222; 
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            
+            /* Use Flex to align text and button group side-by-side */
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* --- MOBILE ADJUSTMENTS --- */
-        @media (max-width: 500px) {
-            .choices { 
-                flex-direction: column; 
-                gap: 10px; 
-            }
+        /* Container for the Yes/No buttons */
+        .confirmation-actions {
+            display: flex;
+            gap: 10px; /* Space between buttons */
+        }
+
+        .confirm-btn {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 8px 0; /* Remove side padding, rely on width */
             
-            .game-btn { 
-                width: 100%; 
-                font-size: 16px; 
-                padding: 20px 0; 
-            } 
+            /* 1. EQUAL SIZE FIX */
+            width: 60px; /* Fixed width so Yes/No are identical size */
+            
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            border-radius: 2px;
+            text-align: center;
+        }
+
+        .confirm-btn:hover { background-color: #ddd; }
+
+        @media (max-width: 500px) {
+            .choices { flex-direction: column; gap: 10px; }
+            .game-btn { width: 100%; font-size: 16px; padding: 20px 0; } 
+            
+            /* Stack confirmation on mobile */
+            .confirmation-box { flex-direction: column; gap: 15px; width: 100%; box-sizing: border-box; }
+            .confirmation-actions { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -147,9 +179,9 @@
         <h1>Rock Paper Scissors</h1>
 
         <div class="choices">
-            <button class="game-btn" onclick="playGame('Rock');">Rock</button>
-            <button class="game-btn" onclick="playGame('Paper');">Paper</button>
-            <button class="game-btn" onclick="playGame('Scissors');">Scissors</button>
+            <button class="game-btn js-rock-btn">Rock</button>
+            <button class="game-btn js-paper-btn">Paper</button>
+            <button class="game-btn js-scissors-btn">Scissors</button>
         </div>
 
         <div class="result-display">
@@ -159,45 +191,87 @@
         </div>
 
         <div class="action-buttons">
-            <button class="secondary-btn auto-play-btn" onclick="autoPlay()">Auto Play</button>
-            
-            <button class="secondary-btn" onclick="resetScore()">Reset Score</button>
+            <button class="secondary-btn js-auto-play-btn">Auto Play</button>
+            <button class="secondary-btn js-reset-btn">Reset Score</button>
         </div>
+        
+        <div class="js-reset-confirmation"></div>
     </div>
 
     <script>
         let score = JSON.parse(localStorage.getItem('score')) || { Win: 0, Lose: 0, Tie: 0 };
-
         updateScoreElement();
 
-        /* --- NEW: Auto Play Logic --- */
-        let isAutoPlaying = false; // Tracks if we are currently playing
-        let intervalId;            // Stores the ID of the interval so we can stop it
+        let isAutoPlaying = false;
+        let intervalId;
+
+        /* --- LISTENERS --- */
+        document.querySelector('.js-rock-btn').addEventListener('click', () => { playGame('Rock'); });
+        document.querySelector('.js-paper-btn').addEventListener('click', () => { playGame('Paper'); });
+        document.querySelector('.js-scissors-btn').addEventListener('click', () => { playGame('Scissors'); });
+
+        document.querySelector('.js-reset-btn').addEventListener('click', () => { showResetConfirmation(); });
+        document.querySelector('.js-auto-play-btn').addEventListener('click', () => { autoPlay(); });
+
+        document.body.addEventListener('keydown', (event) => {
+            if (event.key === 'r') playGame('Rock');
+            else if (event.key === 'p') playGame('Paper');
+            else if (event.key === 's') playGame('Scissors');
+            else if (event.key === 'Backspace') showResetConfirmation();
+        });
+
+        /* --- FUNCTIONS --- */
+        function showResetConfirmation() {
+            // 2. HTML UPDATE: Added 'confirmation-actions' div for better alignment
+            document.querySelector('.js-reset-confirmation').innerHTML = `
+                <div class="confirmation-box">
+                    <span>Are you sure you want to reset the score?</span>
+                    <div class="confirmation-actions">
+                        <button class="confirm-btn js-confirm-yes">Yes</button>
+                        <button class="confirm-btn js-confirm-no">No</button>
+                    </div>
+                </div>
+            `;
+
+            document.querySelector('.js-confirm-yes').addEventListener('click', () => {
+                resetScore();
+                hideResetConfirmation();
+            });
+
+            document.querySelector('.js-confirm-no').addEventListener('click', () => {
+                hideResetConfirmation();
+            });
+        }
+
+        function hideResetConfirmation() {
+            document.querySelector('.js-reset-confirmation').innerHTML = '';
+        }
+
+        function resetScore() {
+            score = { Win: 0, Lose: 0, Tie: 0 };
+            localStorage.removeItem('score');
+            document.querySelector('.js-result').innerHTML = '';
+            document.querySelector('.js-moves').innerHTML = '';
+            updateScoreElement();
+        }
 
         function autoPlay() {
-            const buttonElement = document.querySelector('.auto-play-btn');
+            const buttonElement = document.querySelector('.js-auto-play-btn');
 
             if (!isAutoPlaying) {
-                // START PLAYING
                 intervalId = setInterval(function() {
-                    // 1. Pick a random move for the player
                     const playerMove = pickComputerMove(); 
-                    // 2. Play the game with that move
                     playGame(playerMove);
-                }, 1000); // Run every 1000ms (1 second)
-
+                }, 1000); 
                 isAutoPlaying = true;
                 buttonElement.innerHTML = 'Stop Playing';
-
             } else {
-                // STOP PLAYING
-                clearInterval(intervalId); // Kill the interval
+                clearInterval(intervalId); 
                 isAutoPlaying = false;
                 buttonElement.innerHTML = 'Auto Play';
             }
         }
 
-        /* --- EXISTING LOGIC --- */
         function playGame(playerMove) {
             const computerMove = pickComputerMove();
             let result = '';
@@ -238,14 +312,6 @@
             if (randomNumber < 1 / 3) return 'Rock';
             if (randomNumber < 2 / 3) return 'Paper';
             return 'Scissors';
-        }
-
-        function resetScore() {
-            score = { Win: 0, Lose: 0, Tie: 0 };
-            localStorage.removeItem('score');
-            document.querySelector('.js-result').innerHTML = '';
-            document.querySelector('.js-moves').innerHTML = '';
-            updateScoreElement();
         }
     </script>
 </body>
