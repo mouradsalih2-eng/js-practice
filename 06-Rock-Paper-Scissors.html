@@ -99,8 +99,15 @@
             border: 1px solid #ddd;
         }
 
-        /* 4. RESET BUTTON */
-        .reset-btn {
+        /* 4. ACTION BUTTONS (Reset & Auto Play) */
+        .action-buttons {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .secondary-btn {
             background: none;
             border: none;
             border-bottom: 1px solid transparent;
@@ -109,26 +116,23 @@
             font-size: 12px;
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 25px;
             letter-spacing: 1px;
             transition: color 0.3s;
         }
 
-        .reset-btn:hover {
+        .secondary-btn:hover {
             color: #000;
             border-bottom: 1px solid #000;
         }
 
-        /* --- MOBILE ADJUSTMENTS (Updated) --- */
+        /* --- MOBILE ADJUSTMENTS --- */
         @media (max-width: 500px) {
             .choices { 
-                /* Change direction to stack items */
                 flex-direction: column; 
                 gap: 10px; 
             }
             
             .game-btn { 
-                /* Force full width */
                 width: 100%; 
                 font-size: 16px; 
                 padding: 20px 0; 
@@ -154,7 +158,11 @@
             <div class="js-score"></div>
         </div>
 
-        <button class="reset-btn" onclick="resetScore()">Reset Score</button>
+        <div class="action-buttons">
+            <button class="secondary-btn auto-play-btn" onclick="autoPlay()">Auto Play</button>
+            
+            <button class="secondary-btn" onclick="resetScore()">Reset Score</button>
+        </div>
     </div>
 
     <script>
@@ -162,6 +170,34 @@
 
         updateScoreElement();
 
+        /* --- NEW: Auto Play Logic --- */
+        let isAutoPlaying = false; // Tracks if we are currently playing
+        let intervalId;            // Stores the ID of the interval so we can stop it
+
+        function autoPlay() {
+            const buttonElement = document.querySelector('.auto-play-btn');
+
+            if (!isAutoPlaying) {
+                // START PLAYING
+                intervalId = setInterval(function() {
+                    // 1. Pick a random move for the player
+                    const playerMove = pickComputerMove(); 
+                    // 2. Play the game with that move
+                    playGame(playerMove);
+                }, 1000); // Run every 1000ms (1 second)
+
+                isAutoPlaying = true;
+                buttonElement.innerHTML = 'Stop Playing';
+
+            } else {
+                // STOP PLAYING
+                clearInterval(intervalId); // Kill the interval
+                isAutoPlaying = false;
+                buttonElement.innerHTML = 'Auto Play';
+            }
+        }
+
+        /* --- EXISTING LOGIC --- */
         function playGame(playerMove) {
             const computerMove = pickComputerMove();
             let result = '';
